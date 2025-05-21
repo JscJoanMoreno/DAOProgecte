@@ -1,34 +1,48 @@
 package albumDao.EmployeeDao;
 
-import albumDao.connexio.Connexio;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeDaoImplementacio implements EmployeeDao {
-    static Connection con = Connexio.getConnection();
 
-    @Override
-    public int create(Employee e) throws SQLException {
-        String query = "INSERT INTO Employee (FirstName, LastName) VALUES (?, ?)";
-        PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, e.getNom());
-        ps.setString(2, e.getCognom());
-        ps.executeUpdate();
+    private final Connection con;
 
-        ResultSet rs = ps.getGeneratedKeys();
-        if (rs.next()) {
-            return rs.getInt(1);
-        }
-        return 0;
+    public EmployeeDaoImplementacio(Connection con) {
+        this.con = con;
     }
 
     @Override
-    public Employee read(int id) throws SQLException {
-        String query = "SELECT * FROM Employee WHERE EmployeeId = ?";
-        PreparedStatement ps = con.prepareStatement(query);
-        ps.setInt(1, id);
+    public void inserir(Employee e) throws SQLException {
+        String sql = "INSERT INTO Employee(FirstName, LastName, DepartmentId) VALUES (?, ?, NULL)";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setString(1, e.getNom());
+        ps.setString(2, e.getCognom());
+        ps.executeUpdate();
+    }
 
+    @Override
+    public List<Employee> mostrarTots() throws SQLException {
+        List<Employee> llista = new ArrayList<>();
+        String sql = "SELECT * FROM Employee";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            llista.add(new Employee(
+                    rs.getInt("EmployeeId"),
+                    rs.getString("FirstName"),
+                    rs.getString("LastName")
+            ));
+        }
+        return llista;
+    }
+
+    @Override
+    public Employee obtenirPerId(int id) throws SQLException {
+        String sql = "SELECT * FROM Employee WHERE EmployeeId = ?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             return new Employee(
@@ -41,9 +55,17 @@ public class EmployeeDaoImplementacio implements EmployeeDao {
     }
 
     @Override
-    public void update(Employee e) throws SQLException {
-        String query = "UPDATE Employee SET FirstName = ?, LastName = ? WHERE EmployeeId = ?";
-        PreparedStatement ps = con.prepareStatement(query);
+    public void eliminarPerId(int id) throws SQLException {
+        String sql = "DELETE FROM Employee WHERE EmployeeId = ?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, id);
+        ps.executeUpdate();
+    }
+
+    @Override
+    public void actualitzar(Employee e) throws SQLException {
+        String sql = "UPDATE Employee SET FirstName = ?, LastName = ? WHERE EmployeeId = ?";
+        PreparedStatement ps = con.prepareStatement(sql);
         ps.setString(1, e.getNom());
         ps.setString(2, e.getCognom());
         ps.setInt(3, e.getId());
@@ -51,17 +73,14 @@ public class EmployeeDaoImplementacio implements EmployeeDao {
     }
 
     @Override
-    public void delete(int id) throws SQLException {
-        String query = "DELETE FROM Employee WHERE EmployeeId = ?";
-        PreparedStatement ps = con.prepareStatement(query);
-        ps.setInt(1, id);
-        ps.executeUpdate();
-    }
-
-    @Override
-    public List<Employee> getEmployees() throws SQLException {
+    public List<Employee> getEmployeesAmbDepartament() throws SQLException {
         List<Employee> llista = new ArrayList<>();
-        String query = "SELECT * FROM Employee";
+        String query = """
+                SELECT e.EmployeeId, e.FirstName, e.LastName, d.DepartmentName
+                FROM Employee e
+                LEFT JOIN Department d ON e.DepartmentId = d.DepartmentId
+                """;
+
         PreparedStatement ps = con.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
 
@@ -69,7 +88,8 @@ public class EmployeeDaoImplementacio implements EmployeeDao {
             llista.add(new Employee(
                     rs.getInt("EmployeeId"),
                     rs.getString("FirstName"),
-                    rs.getString("LastName")
+                    rs.getString("LastName"),
+                    rs.getString("DepartmentName")
             ));
         }
         return llista;

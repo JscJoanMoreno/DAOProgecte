@@ -4,9 +4,9 @@ public class Employee {
     private int id;
     private String nom;
     private String cognom;
+    private String departamentNom;
 
-    public Employee() {
-    }
+    public Employee() {}
 
     public Employee(int id, String nom, String cognom) {
         this.id = id;
@@ -14,29 +14,22 @@ public class Employee {
         this.cognom = cognom;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
+    public Employee(int id, String nom, String cognom, String departamentNom) {
         this.id = id;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
         this.nom = nom;
-    }
-
-    public String getCognom() {
-        return cognom;
-    }
-
-    public void setCognom(String cognom) {
         this.cognom = cognom;
+        this.departamentNom = departamentNom;
     }
+
+    public int getId() { return id; }
+    public String getNom() { return nom; }
+    public String getCognom() { return cognom; }
+    public String getDepartamentNom() { return departamentNom; }
+
+    public void setId(int id) { this.id = id; }
+    public void setNom(String nom) { this.nom = nom; }
+    public void setCognom(String cognom) { this.cognom = cognom; }
+    public void setDepartamentNom(String departamentNom) { this.departamentNom = departamentNom; }
 
     @Override
     public String toString() {
@@ -44,6 +37,7 @@ public class Employee {
                 "id=" + id +
                 ", nom='" + nom + '\'' +
                 ", cognom='" + cognom + '\'' +
+                ", departament='" + departamentNom + '\'' +
                 '}';
     }
 }
