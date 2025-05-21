@@ -89,7 +89,7 @@ public class EmployeeDaoImplementacio implements EmployeeDao {
                     rs.getInt("EmployeeId"),
                     rs.getString("FirstName"),
                     rs.getString("LastName"),
-                    rs.getString("DepartmentName")
+                    rs.getString("DepartmentNamea")
             ));
         }
         return llista;
